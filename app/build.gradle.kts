@@ -36,6 +36,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.compose.runtime)
     implementation(libs.play.services.location)
 
 
