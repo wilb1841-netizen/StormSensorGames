@@ -1,9 +1,18 @@
 package com.example.stormsensorgames
 
+// CLASS 1
+// CLASS 2
 import android.app.ProgressDialog.show
+import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -13,50 +22,40 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.overscroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import kotlin.math.roundToInt
-// CLASS 1
-import android.content.Context
-import android.hardware.Sensor
-import android.hardware.SensorEvent
-import android.hardware.SensorEventListener
-import android.hardware.SensorManager
-import android.widget.Toast
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-// CLASS 2
-import androidx.compose.foundation.Image
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.res.painterResource
-import kotlin.math.sqrt
+import kotlin.math.roundToInt
 import kotlin.random.Random
+import androidx.compose.runtime.mutableLongStateOf
 
 // Fixed on-screen size of the ball. NEVER CHANGES
 private const val BALL_SIZE_DP = 60
@@ -108,6 +107,7 @@ fun SensorGameScreen() {
     val shakeThreshold = 12f // m/s^2 above gravity to count as a shake
     val shakeCooldownMs = 1500L // minimum ms between shake events
 
+
     // Ball color cycling
     var colorIndex by remember { mutableIntStateOf(0) }
     val ballColors = remember {
@@ -116,15 +116,15 @@ fun SensorGameScreen() {
     // ---------------------------------------------------------
     // SHAKE ACTION
     // ---------------------------------------------------------
-    fun onShakeDetected()
-    { colorIndex = (colorIndex + 1) % ballColors.size Toast.makeText (
-            context, "Ball color changed!",Toast.LENGTH_SHORT ).
-        show() }
+    fun onShakeDetected() {
+        colorIndex = (colorIndex + 1) % ballColors.size
+        Toast.makeText (context,"Ball color changed!",Toast.LENGTH_SHORT ).show()
+    }
 
 
     // Stars - a list of positions, not a list of View objects
     val starPx = with(density) { 32.dp.toPx() }
-    val starCount = 5
+    val starCount = 15
     val stars = remember { mutableStateListOf<Offset>() }
 
     // One frame of game logic, called 30 times/sec by the LaunchedEffect loop below.
@@ -142,11 +142,8 @@ fun SensorGameScreen() {
         // 3. Keep the ball on screen — see Hour 1, Topic 5 for the technique
     }
 
-    fun onShakeDetected() {
-        // Steps to complete:
-        // 1. Move to the next colour in the list, wrapping back to the start after the last one
-        // 2. Give the player some feedback that a shake was detected
-    }
+
+
 
     fun spawnStars() {
         stars.clear()
@@ -313,8 +310,36 @@ fun SensorGameScreen() {
         }
     }
 }
-
-
+//Sensor.TYPE_ACCELEROMETER -> {
+//    val ax = event.values[0]
+//    val ay = event.values[1]
+//    val az = event.values[2]
+//
+//    // total acceleration minus gravity = force from shaking
+//    val force = kotlin.math.abs(
+//        sqrt(ax * ax + ay * ay + az * az) - SensorManager.GRAVITY_EARTH
+//    )
+//
+//    val now = System.currentTimeMillis()
+//    if (force > shakeThreshold && now - lastShakeTime > shakeCooldownMs) {
+//        lastShakeTime = now
+//        onShakeDetected()
+//    }
+//}
+//Lifecycle.Event.ON_RESUME -> {
+//    gyroscope?.let {
+//        sensorManager.registerListener(listener, it, SensorManager.SENSOR_DELAY_UI)
+//    }
+//    accelerometer?.let {
+//        sensorManager.registerListener(listener, it, SensorManager.SENSOR_DELAY_UI)
+//    }
+//}
+//Lifecycle.Event.ON_PAUSE -> sensorManager.unregisterListener(listener)
+//R.drawable.star_shape must exist in res/drawable/. Otherwise you'll get "Unresolved reference: R" or a missing-resource error. Your file also has no package line at the top, which must match your project's package for R to resolve.
+//A shakeThreshold of 12 above gravity is a hard shake. If it's hard to trigger on your phone, try 6 to 8.
+//If your Compose version warns that LocalLifecycleOwner is deprecated, import it from androidx.lifecycle.compose.LocalLifecycleOwner instead. This is a warning only.
+//
+//If you still get errors after these changes, paste the exact message from Android Studio and I'll track it down.
 
 
 
