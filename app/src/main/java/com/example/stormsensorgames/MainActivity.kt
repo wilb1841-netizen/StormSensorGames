@@ -55,6 +55,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.res.painterResource
 import kotlin.math.sqrt
 import kotlin.random.Random
+import androidx.compose.foundation.layout.statusBarsPadding
 // CLASS 3
 import android.Manifest
 import android.content.pm.PackageManager
@@ -144,7 +145,8 @@ fun SensorGameScreen() {
     // Score, win flag, reward
     var gameOver by remember { mutableStateOf(false) }
     var showWinDialog by remember { mutableStateOf(false) }
-    val winScore = 50
+    val winScore = 150
+
 
     // One frame of game logic, called 30 times/sec by the LaunchedEffect loop below.
     fun moveBallWithGyro() {
@@ -361,13 +363,13 @@ fun SensorGameScreen() {
         // GPS TEXT: Top-Left corner
         Text(
             text = gpsText,
-            modifier = Modifier.align(Alignment.TopStart).padding(12.dp)
+            modifier = Modifier.align(Alignment.TopStart).statusBarsPadding().padding(12.dp)
         )
 
         // Score Text: Top-Right corner
         Text(
             text = "Score: $score",
-            modifier = Modifier.align(Alignment.TopEnd).padding(12.dp)
+            modifier = Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(12.dp)
         )
 
         // The ball - a plain colored circle
@@ -389,7 +391,7 @@ fun SensorGameScreen() {
             )
         }
 
-        // Shake + GPS buttons - bottom of screen
+        // Shake + GPS buttons - bottom of screen. Disabled until wired up in next class
         Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -399,19 +401,15 @@ fun SensorGameScreen() {
             Button(onClick = { onShakeDetected() }, enabled = true) {
                 Text("Shake")
             }
-            Button(
-                onClick = {
-                    gpsButtonEnabled = false
-                    // "Before" position: fixed LA base coordinate
+            Button(onClick = {
+                    gpsButtonEnabled = false // "Before" position: fixed LA base coordinate
                     val base = Location("test").apply { latitude = 34.0522; longitude = -118.2437 }
-                    // "After" position: 0.0001 degrees north of base = ~11 meters
+                                                            // "After" position: 0.0001 degrees north of base = ~11 meters
                     val current = Location("test").apply { latitude = 34.0523; longitude = -118.2437 }
                     lastLocation = base
                     onNewLocation(current)
                     scope.launch { delay(5000L); gpsButtonEnabled = true }
-                },
-                enabled = gpsButtonEnabled   // FIX: was hard-coded false
-            ) {
+                }, enabled = gpsButtonEnabled ){ // FIX: was hard-coded false
                 Text("GPS +10m")
             }
         }
@@ -432,7 +430,13 @@ fun SensorGameScreen() {
 }
 
 
-
+//val locationPermissionLauncher = rememberLauncherForActivityResult(
+//ActivityResultContracts.RequestMultiplePermissions()
+//) { results ->
+//  val granted = results[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+//           results[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+//    if (granted) startLocationUpdates() else gpsText = "Location permission denied"
+//}
 
 
 
